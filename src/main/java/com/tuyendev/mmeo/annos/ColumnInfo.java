@@ -31,6 +31,6 @@ public @interface ColumnInfo {
 
     short columnTextColor() default 0x9;
 
-    short foregroundColor() default 0x28;
+    short foregroundColor() default 0x16;
 
 }

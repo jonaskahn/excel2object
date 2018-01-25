@@ -32,7 +32,7 @@ public @interface SheetInfo {
 
     short headerTextColor() default 0x09;
 
-    short headerForegroundColor() default 0x28;
+    short headerForegroundColor() default 0x16;
 
     boolean autoOrder() default false;
 

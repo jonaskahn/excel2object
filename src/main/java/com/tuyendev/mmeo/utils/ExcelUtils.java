@@ -23,7 +23,7 @@ import java.util.TreeMap;
  */
 public class ExcelUtils {
 
-    public static int getColumnIndex(String name, Row row) {
+    private static int getColumnIndex(String name, Row row) {
         Iterator<Cell> cells = row.cellIterator();
         Cell cell;
         while (cells.hasNext()) {
@@ -34,7 +34,7 @@ public class ExcelUtils {
         return -1;
     }
 
-    public static Object getCellValue(Cell cell) {
+    private static Object getCellValue(Cell cell) {
         if (Objects.isNull(cell)) return null;
         switch (cell.getCellTypeEnum()) {
             case _NONE:
@@ -96,15 +96,6 @@ public class ExcelUtils {
                 reader.read(
                         field, field.isAnnotationPresent(ColumnInfo.class) ? field.getAnnotation(ColumnInfo.class).name() : field.getName()
                 );
-            }
-        }
-    }
-
-    public static void writeFields(Class clazz, ExecutionWriter writer) throws Exception {
-        Field[] fields = clazz.getDeclaredFields();
-        if (!DataUtils.isNullOrEmpty(fields)) {
-            for (Field field : fields) {
-                writer.write(field);
             }
         }
     }
