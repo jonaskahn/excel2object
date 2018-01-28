@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * headerName               -   Header's name
  * headerTextColor          -   Header's text color
  * headerForegroundColor    -   Header's foreground color
- * autoOrder                -   Auto order column name, don't use index name
+ * autoOrder                -   Auto order column name, skip all indexs of columns
  * <p>Note: headerSkipped, headerName, headerForegroundColor, headerTextColor, autoOrder
  * only have effect on writing object to excel</p>
  *
