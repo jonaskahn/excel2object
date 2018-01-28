@@ -6,6 +6,7 @@ import com.tuyendev.mmeo.converter.DataConverters;
 import com.tuyendev.mmeo.inf.Converter;
 import com.tuyendev.mmeo.utils.DataUtils;
 import com.tuyendev.mmeo.utils.ExcelUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -15,6 +16,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.rmi.UnexpectedException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,39 +24,20 @@ public class ObjectToExcel<T> {
 
     private Class<T> clazz;
     private final List<T> datas;
-
+    private ByteArrayOutputStream output;
 
     private ObjectToExcel(List<T> datas) {
         this.datas = datas;
     }
 
-    public ObjectToExcel data(List<T> datas) {
+    public static <T> ObjectToExcel input(List<T> datas) {
         return new ObjectToExcel(datas);
     }
 
-    public ByteArrayOutputStream transfer() throws Exception {
-        int index = 0;
-        SheetInfo infoSheet = clazz.getAnnotation(SheetInfo.class);
-        if (Objects.isNull(infoSheet)) throw new UnexpectedException("SheetInfo missing info");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        workbook.createSheet(infoSheet.name());
-        Map<Integer, Field> mColumnInfos = ExcelUtils.indexToName(clazz);
-        if (!infoSheet.headerSkipped()) {
-            createBigHeader(workbook, infoSheet, mColumnInfos.size());
-            index++;
-        }
-        writeHeader(workbook, mColumnInfos, index);
-        index++;
-        for (int i = 0; i < datas.size(); i++) {
-            T data = datas.get(i);
-            writeData(workbook, data, mColumnInfos, i + index);
-        }
-
-        return out;
-
+    public ObjectToExcel forClass(Class<T> clazz) {
+        this.clazz = clazz;
+        return this;
     }
-
 
     private void writeHeader(HSSFWorkbook workbook, Map<Integer, Field> mColumnInfos, int indexHeader) throws Exception {
         HSSFSheet sheet = workbook.getSheetAt(0);
@@ -73,25 +56,29 @@ public class ObjectToExcel<T> {
         }
     }
 
-
     private <T> void writeData(HSSFWorkbook workbook, T instance, Map<Integer, Field> mColumnInfos, int indexData) throws Exception {
         HSSFSheet sheet = workbook.getSheetAt(0);
         HSSFRow row = sheet.createRow(indexData);
-        HSSFCellStyle cellStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        cellStyle.setFont(font);
+        DataFormat format = workbook.createDataFormat();
         Map<Class, Converter> converters = DataConverters.getConverter();
         for (Map.Entry<Integer, Field> mf : mColumnInfos.entrySet()) {
             Integer index = mf.getKey();
             Field field = mf.getValue();
+            HSSFCellStyle cellStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            cellStyle.setFont(font);
             Converter converter = converters.get(field.getType());
             String methodName = "get" + DataUtils.toUpperCaseFirstCharacter(field.getName());
-            Method method = clazz.getDeclaredMethod(methodName, field.getType());
+            Method method = clazz.getDeclaredMethod(methodName);
             ColumnInfo columnInfo = field.getAnnotation(ColumnInfo.class);
             row.createCell(columnInfo.index());
             Cell cell = row.createCell(index);
             cell.setCellValue(converter.safeToString(method.invoke(instance), columnInfo.format()));
             cell.setCellStyle(cellStyle);
+            if(!StringUtils.isBlank(columnInfo.format())){
+                cellStyle.setDataFormat(format.getFormat(columnInfo.format()));
+            }
+
             //custom font and style
 
 
@@ -114,18 +101,48 @@ public class ObjectToExcel<T> {
         cell.setCellStyle(cellStyle);
         cellStyle.setFont(font);
 
-        // font and style
-
-        font.setColor(infoSheet.headerTextColor());
-        font.setFontHeight((short) (15 * 20));
-
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        //font and style
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        /* Example style
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         cellStyle.setFillForegroundColor(infoSheet.headerForegroundColor());
         cellStyle.setBorderBottom(BorderStyle.THIN);
         cellStyle.setBorderTop(BorderStyle.THIN);
         cellStyle.setBorderLeft(BorderStyle.THIN);
         cellStyle.setBorderRight(BorderStyle.THIN);
+
+        font.setColor(infoSheet.headerTextColor());
+        font.setFontHeight((short) (15 * 20));
+        */
+
+    }
+
+    public ByteArrayOutputStream transfer() throws Exception {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();) {
+            int index = 0;
+            SheetInfo infoSheet = clazz.getAnnotation(SheetInfo.class);
+            if (Objects.isNull(infoSheet)) throw new UnexpectedException("SheetInfo missing info");
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            workbook.createSheet(infoSheet.name());
+            Map<Integer, Field> mColumnInfos = ExcelUtils.indexToName(clazz);
+            if (!infoSheet.headerSkipped()) {
+                createBigHeader(workbook, infoSheet, mColumnInfos.size());
+                index++;
+            }
+            writeHeader(workbook, mColumnInfos, index);
+            index++;
+            for (int i = 0; i < datas.size(); i++) {
+                T data = datas.get(i);
+                writeData(workbook, data, mColumnInfos, i + index);
+            }
+            workbook.write(outputStream);
+            this.output = outputStream;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return output;
 
     }
 

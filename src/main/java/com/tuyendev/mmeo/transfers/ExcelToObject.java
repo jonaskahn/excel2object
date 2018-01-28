@@ -21,13 +21,17 @@ import java.util.*;
 public class ExcelToObject<T> {
 
     private final InputStream inputStream;
-    private int dataIndex = 2;
-    private int headerIndex = 1;
+    private int headerIndex = 0;
+    private int dataIndex = 1;
     private Class<T> clazz;
     private boolean isXMLStyle;
 
     private ExcelToObject(InputStream inputStream) {
         this.inputStream = inputStream;
+    }
+
+    public static ExcelToObject input(InputStream inputStream) {
+        return new ExcelToObject(inputStream);
     }
 
     public ExcelToObject dataIndex(int dataIndex) {
@@ -40,7 +44,7 @@ public class ExcelToObject<T> {
         return this;
     }
 
-    public ExcelToObject objectDesc(Class clazz) {
+    public ExcelToObject forClass(Class<T> clazz) {
         this.clazz = clazz;
         return this;
     }
@@ -52,7 +56,7 @@ public class ExcelToObject<T> {
 
     public List<T> transfer() throws Exception {
         List<T> result = new ArrayList<T>();
-        if (headerIndex < 1) {
+        if (headerIndex < 0) {
             throw new InvalidParameterException("Header's index must be larger than or equal 1");
         }
 
@@ -63,10 +67,6 @@ public class ExcelToObject<T> {
         if (headerIndex >= dataIndex) {
             throw new InvalidParameterException("Data's index must be lager than Header's index");
         }
-
-        /*Decrease negative 1 for header and data index because ApachePoi start reading at index 0 */
-        headerIndex--;
-        dataIndex--;
 
         Workbook workbook = isXMLStyle ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream);
 

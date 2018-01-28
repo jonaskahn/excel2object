@@ -4,6 +4,7 @@ import com.tuyendev.mmeo.inf.Converter;
 import com.tuyendev.mmeo.utils.DataUtils;
 
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 public class FloatConverter implements Converter<Float> {
 
@@ -14,6 +15,7 @@ public class FloatConverter implements Converter<Float> {
 
     @Override
     public String safeToString(Float obj, String format) {
-        return DataUtils.isNullOrEmpty(format) ? new DecimalFormat("#0.##").format(obj) : new DecimalFormat(format).format(obj);
+        if(Objects.isNull(obj)) return null;
+        return new DecimalFormat(format).format(obj);
     }
 }

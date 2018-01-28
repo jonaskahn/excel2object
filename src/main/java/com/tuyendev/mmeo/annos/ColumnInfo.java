@@ -15,7 +15,7 @@ import java.lang.annotation.*;
  */
 @Documented
 @Inherited
-@Target(ElementType.TYPE)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnInfo {
 
@@ -23,7 +23,7 @@ public @interface ColumnInfo {
 
     int index() default 0;
 
-    String format() default "dd/mm/yyyy";
+    String format() default "";
 
     int width() default 50 * 256;
 

@@ -5,6 +5,7 @@ import com.tuyendev.mmeo.utils.DataUtils;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 public class DoubleConverter implements Converter<Double> {
     @Override
@@ -14,6 +15,7 @@ public class DoubleConverter implements Converter<Double> {
 
     @Override
     public String safeToString(Double obj, String format) {
-        return DataUtils.isNullOrEmpty(format) ? new DecimalFormat("#0.##").format(obj) : new DecimalFormat(format).format(obj);
+        if(Objects.isNull(obj)) return null;
+        return new DecimalFormat(format).format(obj);
     }
 }

@@ -17,6 +17,7 @@ public class BigDecimalConverter implements Converter<BigDecimal> {
 
     @Override
     public String safeToString(BigDecimal obj, String format) {
-        return DataUtils.isNullOrEmpty(format) ? new DecimalFormat("#0.##").format(obj) : new DecimalFormat(format).format(obj);
+        if(Objects.isNull(obj)) return null;
+        return new DecimalFormat(format).format(obj);
     }
 }

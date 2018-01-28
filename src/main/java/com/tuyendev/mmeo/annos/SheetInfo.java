@@ -36,6 +36,4 @@ public @interface SheetInfo {
 
     boolean autoOrder() default false;
 
-    String locale() default "en-US";
-
 }
