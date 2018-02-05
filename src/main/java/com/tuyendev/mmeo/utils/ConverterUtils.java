@@ -1,5 +1,6 @@
-package com.tuyendev.mmeo.converter;
+package com.tuyendev.mmeo.utils;
 
+import com.tuyendev.mmeo.converter.*;
 import com.tuyendev.mmeo.inf.Converter;
 
 import java.math.BigDecimal;
@@ -8,9 +9,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataConverters {
+public class ConverterUtils {
 
-    private static Map<Class, Converter> converter ;
+    private static Map<Class, Converter> converter = registerConverter();
 
     private static Map<Class, Converter> registerConverter() {
         Map converter = new HashMap<>();
@@ -23,12 +24,10 @@ public class DataConverters {
         converter.put(Boolean.class, new BooleanConverter());
         converter.put(Date.class, new DateConverter());
         converter.put(Timestamp.class, new TimestampConverter());
-
         return converter;
     }
 
     public static Map<Class, Converter> getConverter() {
-        converter = converter == null ? registerConverter() :  converter;
         return converter;
     }
 }

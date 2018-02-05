@@ -39,9 +39,10 @@ public class TestExport {
         try {
             ByteArrayOutputStream obj  = ObjectToExcel.input(studentDTOS).forClass(StudentDTO.class).transfer();
             File f = new File("test.xls");
-            f.createNewFile();
-            OutputStream outputStream = new FileOutputStream(f);
-            obj.writeTo(outputStream);
+            if(f.createNewFile()){
+                OutputStream outputStream = new FileOutputStream(f);
+                obj.writeTo(outputStream);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

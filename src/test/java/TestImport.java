@@ -17,7 +17,8 @@ public class TestImport {
             List<StudentDTO> datas = ExcelToObject.input(new FileInputStream(file))
                     .forClass(StudentDTO.class)
                     .titleIndex(1)
-                    .dataIndex(2).transfer();
+                    .dataIndex(2)
+                    .transfer();
             for (StudentDTO data : datas) {
                 System.out.println(data.toString());
             }

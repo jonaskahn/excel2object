@@ -2,7 +2,7 @@ package com.tuyendev.mmeo.transfers;
 
 import com.tuyendev.mmeo.annos.ColumnInfo;
 import com.tuyendev.mmeo.annos.SheetInfo;
-import com.tuyendev.mmeo.converter.DataConverters;
+import com.tuyendev.mmeo.utils.ConverterUtils;
 import com.tuyendev.mmeo.inf.Converter;
 import com.tuyendev.mmeo.utils.DataUtils;
 import com.tuyendev.mmeo.utils.ExcelUtils;
@@ -66,7 +66,7 @@ public class ObjectToExcel<T> {
         HSSFSheet sheet = workbook.getSheetAt(0);
         HSSFRow row = sheet.createRow(indexData);
         DataFormat format = workbook.createDataFormat();
-        Map<Class, Converter> converters = DataConverters.getConverter();
+        Map<Class, Converter> converters = ConverterUtils.getConverter();
         for (Map.Entry<Integer, Field> mf : mColumnInfos.entrySet()) {
             Integer index = mf.getKey();
             Field field = mf.getValue();
@@ -96,8 +96,6 @@ public class ObjectToExcel<T> {
         for (int i = 0; i < mergeSize; i++) {
             bigHeader.createCell(i);
         }
-        // merger header & fill data
-
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, mergeSize - 1));
         HSSFCell cell = bigHeader.getCell(0);
         cell.setCellValue(infoSheet.headerName());

@@ -2,7 +2,6 @@ package com.tuyendev.mmeo.utils;
 
 import com.tuyendev.mmeo.annos.ColumnInfo;
 import com.tuyendev.mmeo.annos.SheetInfo;
-import com.tuyendev.mmeo.converter.DataConverters;
 import com.tuyendev.mmeo.inf.Converter;
 import com.tuyendev.mmeo.inf.ExecutionReader;
 import org.apache.commons.lang3.StringUtils;
@@ -82,7 +81,7 @@ public class ExcelUtils {
     public static void valueToField(Object instance, Field field, String value) throws Exception {
         Class clazz = instance.getClass();
         String setMethodName = "set" + DataUtils.toUpperCaseFirstCharacter(field.getName());
-        Map<Class, Converter> converters = DataConverters.getConverter();
+        Map<Class, Converter> converters = ConverterUtils.getConverter();
         Converter converter = converters.get(field.getType());
         if (!Objects.isNull(converter)) {
             Method method = clazz.getDeclaredMethod(setMethodName, field.getType());
