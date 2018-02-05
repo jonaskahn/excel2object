@@ -8,7 +8,10 @@ import com.tuyendev.mmeo.utils.DataUtils;
 import com.tuyendev.mmeo.utils.ExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.ByteArrayOutputStream;
@@ -16,10 +19,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.rmi.UnexpectedException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Transfer object to excel
+ * @param <T>
+ */
 public class ObjectToExcel<T> {
 
     private Class<T> clazz;
@@ -52,7 +58,7 @@ public class ObjectToExcel<T> {
             ColumnInfo columnInfo = field.getAnnotation(ColumnInfo.class);
             cell.setCellValue(columnInfo.name());
             cell.setCellStyle(cellStyle);
-            //custom font and style
+            setHeaderCellStyle(cellStyle, font);
         }
     }
 
@@ -75,17 +81,14 @@ public class ObjectToExcel<T> {
             Cell cell = row.createCell(index);
             cell.setCellValue(converter.safeToString(method.invoke(instance), columnInfo.format()));
             cell.setCellStyle(cellStyle);
-            if(!StringUtils.isBlank(columnInfo.format())){
+            if (!StringUtils.isBlank(columnInfo.format())) {
                 cellStyle.setDataFormat(format.getFormat(columnInfo.format()));
             }
-
-            //custom font and style
-
-
+            setDataCellStyle(cellStyle, font);
         }
     }
 
-    private void createBigHeader(HSSFWorkbook workbook, SheetInfo infoSheet, int mergeSize) {
+    private void writeBigHeader(HSSFWorkbook workbook, SheetInfo infoSheet, int mergeSize) {
         HSSFSheet sheet = workbook.getSheetAt(0);
         HSSFCellStyle cellStyle = workbook.createCellStyle();
         HSSFFont font = workbook.createFont();
@@ -100,22 +103,7 @@ public class ObjectToExcel<T> {
         cell.setCellValue(infoSheet.headerName());
         cell.setCellStyle(cellStyle);
         cellStyle.setFont(font);
-
-        //font and style
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
-
-        /* Example style
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        cellStyle.setFillForegroundColor(infoSheet.headerForegroundColor());
-        cellStyle.setBorderBottom(BorderStyle.THIN);
-        cellStyle.setBorderTop(BorderStyle.THIN);
-        cellStyle.setBorderLeft(BorderStyle.THIN);
-        cellStyle.setBorderRight(BorderStyle.THIN);
-
-        font.setColor(infoSheet.headerTextColor());
-        font.setFontHeight((short) (15 * 20));
-        */
-
+        setBigHeaderCellStyle(cellStyle, font);
     }
 
     public ByteArrayOutputStream transfer() throws Exception {
@@ -127,7 +115,7 @@ public class ObjectToExcel<T> {
             workbook.createSheet(infoSheet.name());
             Map<Integer, Field> mColumnInfos = ExcelUtils.indexToName(clazz);
             if (!infoSheet.headerSkipped()) {
-                createBigHeader(workbook, infoSheet, mColumnInfos.size());
+                writeBigHeader(workbook, infoSheet, mColumnInfos.size());
                 index++;
             }
             writeHeader(workbook, mColumnInfos, index);
@@ -143,6 +131,33 @@ public class ObjectToExcel<T> {
         }
 
         return output;
+
+    }
+
+    /**
+     * set cell style for header/ title
+     *
+     * @param cellStyle
+     */
+    protected void setHeaderCellStyle(CellStyle cellStyle, Font font) {
+
+    }
+
+    /**
+     * set cell style for Big header
+     *
+     * @param cellStyle
+     */
+    protected void setBigHeaderCellStyle(CellStyle cellStyle, Font font) {
+
+    }
+
+    /**
+     * set cell style for row data
+     *
+     * @param cellStyle
+     */
+    protected void setDataCellStyle(CellStyle cellStyle, Font font) {
 
     }
 

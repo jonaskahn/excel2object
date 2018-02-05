@@ -1,13 +1,10 @@
 package com.tuyendev.mmeo.utils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Collection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 public class DataUtils {
 
@@ -64,7 +61,11 @@ public class DataUtils {
         return obj1.toString();
     }
 
-    public static Timestamp safeToTimeStamp(Object obj, Timestamp dv) {
+    public static Timestamp safeToTimeStamp(Object obj, String format) {
+        return safeToTimeStamp(obj,format,null);
+    }
+
+    public static Timestamp safeToTimeStamp(Object obj, String format, Timestamp dv) {
         if (obj == null) return dv;
         try {
             if (obj instanceof Number) {
@@ -73,6 +74,32 @@ public class DataUtils {
                 return (Timestamp) obj;
             } else if (obj instanceof Date) {
                 return new Timestamp(((Date) obj).getTime());
+            } else if (obj instanceof  String) {
+                format = isNullOrEmpty(format) ? "dd/MM/yyyy" : format;
+                final DateFormat myFormat = new SimpleDateFormat(format);
+                return new Timestamp(myFormat.parse((String) obj).getTime());
+            }
+        } catch (Exception e) {
+
+        }
+        return dv;
+    }
+
+    public static Date safeToDate(Object obj, String format) {
+        return safeToDate(obj,format,null);
+    }
+
+    public static Date safeToDate(Object obj, String format, Date dv) {
+        if (obj == null) return dv;
+        try {
+            if (obj instanceof Number) {
+                return new Date(((Number) obj).longValue());
+            } else if (obj instanceof Date) {
+                return (Date) obj;
+            } else if (obj instanceof  String) {
+                format = isNullOrEmpty(format) ? "dd/MM/yyyy" : format;
+                final DateFormat myFormat = new SimpleDateFormat(format);
+                return myFormat.parse((String) obj);
             }
         } catch (Exception e) {
 

@@ -61,4 +61,16 @@ public class StudentDTO {
     public void setAvg(Float avg) {
         this.avg = avg;
     }
+
+
+    @Override
+    public String toString() {
+        return "StudentDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", birthDay=" + birthDay +
+                ", avg=" + avg +
+                '}';
+    }
 }

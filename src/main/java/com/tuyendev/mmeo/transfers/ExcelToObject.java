@@ -21,7 +21,7 @@ import java.util.*;
 public class ExcelToObject<T> {
 
     private final InputStream inputStream;
-    private int headerIndex = 0;
+    private int titleIndex = 0;
     private int dataIndex = 1;
     private Class<T> clazz;
     private boolean isXMLStyle;
@@ -39,8 +39,8 @@ public class ExcelToObject<T> {
         return this;
     }
 
-    public ExcelToObject headerIndex(int headerIndex) {
-        this.headerIndex = headerIndex;
+    public ExcelToObject titleIndex(int titleIndex) {
+        this.titleIndex = titleIndex;
         return this;
     }
 
@@ -55,21 +55,25 @@ public class ExcelToObject<T> {
     }
 
     public List<T> transfer() throws Exception {
-        List<T> result = new ArrayList<T>();
-        if (headerIndex < 0) {
-            throw new InvalidParameterException("Header's index must be larger than or equal 1");
+
+        if (Objects.isNull(clazz)) {
+            throw new NullPointerException("Class type is missing, Which class do you want to transfer?");
+        }
+
+        if (titleIndex < 0) {
+            throw new InvalidParameterException("Header's index must be larger than or equal 0");
         }
 
         if (dataIndex < 1) {
-            throw new InvalidParameterException("Data's index must be lager than or equal 2");
+            throw new InvalidParameterException("Data's index must be lager than or equal 1");
         }
 
-        if (headerIndex >= dataIndex) {
+        if (titleIndex >= dataIndex) {
             throw new InvalidParameterException("Data's index must be lager than Header's index");
         }
 
+        List<T> result = new ArrayList<T>();
         Workbook workbook = isXMLStyle ? new XSSFWorkbook(inputStream) : new HSSFWorkbook(inputStream);
-
         SheetInfo sheetInfo = clazz.getAnnotation(SheetInfo.class);
         String sheetName = sheetInfo.name();
         int sheetIndex = sheetInfo.index();
@@ -83,9 +87,9 @@ public class ExcelToObject<T> {
 
         while (rows.hasNext()) {
             Row row = rows.next();
-            if (row.getRowNum() == this.headerIndex) {
+            if (row.getRowNum() == this.titleIndex) {
                 readHeader(this.clazz, row, mpNameIndexs);
-            } else if (row.getRowNum() >= this.dataIndex) {
+            } else if (row.getRowNum() >= this.dataIndex && !ExcelUtils.isRowEmpty(row)) {
                 result.add(readData(this.clazz, row, mpNameIndexs));
             }
         }
@@ -101,7 +105,7 @@ public class ExcelToObject<T> {
     private T readData(final Class<T> clazz, final Row data, Map<String, Integer> mpNameIndex) throws Exception {
         T instance = clazz.newInstance();
         ExcelUtils.readFields(clazz, ((field, name) -> {
-            ExcelUtils.valueToField(instance,field,ExcelUtils.getValueByName(name,data,mpNameIndex));
+            ExcelUtils.valueToField(instance, field, ExcelUtils.getValueByName(name, data, mpNameIndex));
         }));
         return instance;
     }

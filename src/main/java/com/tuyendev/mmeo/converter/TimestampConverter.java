@@ -13,7 +13,7 @@ public class TimestampConverter implements Converter<Timestamp> {
 
     @Override
     public Timestamp convert(Object obj, String format) {
-        return DataUtils.safeToTimeStamp(obj, null);
+        return DataUtils.safeToTimeStamp(obj, format);
     }
 
     @Override
