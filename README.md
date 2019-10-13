@@ -1,2 +1,2 @@
-# mm-excel-object
-Simple tranfers object to excel and contrary
+# Excel to object
+Simple tranfers object to excel
