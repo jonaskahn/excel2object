@@ -12,7 +12,7 @@
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <jdk.version>1.8</jdk.version>
         <lombok.version>1.18.10</lombok.version>
-        <poi.version>4.1.0</poi.version>
+        <poi.version>4.1.1</poi.version>
         <poi-ooxml.version>4.1.0</poi-ooxml.version>
         <commons-text.version>1.8</commons-text.version>
     </properties>
